@@ -3,13 +3,158 @@ var qcloud = require('../../vendor/wafer2-client-sdk/index')
 var config = require('../../config')
 var util = require('../../utils/util.js')
 
+
+
 Page({
     data: {
         userInfo: {},
         logged: false,
         takeSession: false,
+        dateType:"day",
+        weightData: [
+          { "date": 20180601, "weight": 140 },
+          { "date": 20180602, "weight": 130 },
+          { "date": 20180603, "weight": 120 },
+          { "date": 20180604, "weight": null},
+          { "date": 20180605, "weight": 130 },
+          { "date": 20180606, "weight": 143 },
+          { "date": 20180607, "weight": null},
+          { "date": 20180608, "weight": 130 },
+          { "date": 20180609, "weight": 93 },
+          { "date": 20180610, "weight": 140 },
+          { "date": 20180611, "weight": 130 },
+          { "date": 20180612, "weight": 130 },
+          { "date": 20180613, "weight": 120 },
+          { "date": 20180614, "weight": null },
+          { "date": 20180615, "weight": 130 },
+          { "date": 20180616, "weight": 143 },
+          { "date": 20180617, "weight": null },
+          { "date": 20180618, "weight": 130 }
+        ],
         requestResult: ''
     },
+
+    /**
+      * 生命周期函数--监听页面加载
+      */
+    onLoad: function (options) {
+      // const ctx = wx.createCanvasContext('xyz');
+      this.draw(this.data);
+      
+    },
+
+    draw: function(data){
+      var ctx = wx.createCanvasContext('xyz', this);
+      var width,height=300;
+      var originX = 22;
+      var originY = 215;
+      var map = data.weightData;
+      
+      //数据处理
+      if(map.length==0){
+        return;
+      }
+      //求最大最小值
+      var minWeight,maxWeight;
+      for(var i=0;i<map.length;i++){
+        if(map[i].weight==null){
+          continue;
+        }
+        if(minWeight==null){
+          minWeight=map[i].weight;
+        }
+        if (maxWeight == null) {
+          maxWeight = map[i].weight;
+        }
+        
+        if(minWeight>map[i].weight){
+          minWeight=map[i].weight;
+        }
+        if(maxWeight<map[i].weight){
+          maxWeight=map[i].weight;
+        }
+      }
+      console.log('最小:'+minWeight+'； 最大:'+maxWeight);
+      //求坐标最大最小值
+      var minY = Math.floor(minWeight/10)*10;
+      var maxY = Math.ceil(maxWeight/10)*10;
+      console.log("坐标Y最小:"+minY+"; 最大:"+maxY);
+      //求坐标步幅
+      var stepY = 5;
+
+      //获取屏宽
+      wx.getSystemInfo({
+        success: function(res) {
+          width=res.windowWidth;
+          height = res.windowHeight;
+          console.log('屏幕宽度:'+width+'; 屏幕高度:'+height);
+        },
+      })
+      var ratioX=parseInt((width-60)/15);
+      var ratioY=stepY*3;
+      
+
+      //绘制坐标
+      ctx.beginPath();
+      for(var i=0;i<=(maxY-minY)/stepY;i++){
+        
+        ctx.save();
+        ctx.setStrokeStyle("#dde2e3");
+        ctx.setFillStyle("#848198");
+        ctx.setFontSize("8");
+        ctx.fillText(i*stepY+minY,5,originY+5-i*ratioY);
+        ctx.moveTo(originX,originY-i*ratioY);
+        ctx.lineTo((width-30),originY-i*ratioY);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // //绘制图例
+      // for(var i=0;i<map.length;i++){
+      //   ctx.save();
+      //   ctx.translate(15,215);
+      //   ctx.beginPath();
+      //   ctx.setLineCap("round");
+      //   ctx.setLineWidth(1);
+      //   ctx.moveTo(22+i*38,46);
+      //   ctx.lineTo(38+i+38,46);
+      //   ctx.stroke();
+      //   ctx.setFontSize('8');
+      //   ctx.setFillStyle('#000000');
+      //   ctx.fillText(map[i].date,21+i*50,66);
+      //   ctx.restore();
+      // }
+      //横坐标
+      for(var i=0;i<(map.length);i++){
+        ctx.save();
+        ctx.translate(15,215);
+        ctx.setFontSize('8');
+        ctx.setFillStyle('#006600');
+        var str = map[i].date+'';
+        ctx.fillText(str.substr(4),i*ratioX,20);
+        ctx.restore();
+      }
+      
+      //绘制折线
+      ctx.beginPath();
+      ctx.save();
+      ctx.translate(22,215);
+      ctx.moveTo(0,-(map[0].weight-minY)/stepY*ratioY);
+      for(var i=1;i<map.length;i++){
+        ctx.setStrokeStyle('#0000FF');
+        if(map[i].weight==null){
+          continue;
+        }
+        ctx.lineTo(i * ratioX, -(map[i].weight-minY)/stepY*ratioY);
+        
+        // originY - i * ratioY
+        console.log((map[i].weight - minY)/stepY);
+      }
+      ctx.stroke();
+      ctx.restore();
+      ctx.draw();
+    },
+
 
     // 用户登录示例
     login: function() {

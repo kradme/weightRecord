@@ -13,9 +13,13 @@
         </view>
     </view>
 
+    <view>
+      <canvas canvas-id='xyz' style='border:1px solid' class="canvas-container"/>
+    </view>
+
 
     <!-- 上传图片测试 -->
-    <view class="uploader">
+    <!-- <view class="uploader">
         <view class="uploader-text" bindtap="doUpload">
             <text>上传图片</text>
         </view>
@@ -27,13 +31,13 @@
                 bindtap="previewImg"
             ></image>
         </view>
-    </view>
+    </view> -->
 
 
     <!-- 上传图片测试 -->
-    <view class="uploader">
+    <!-- <view class="uploader">
         <navigator url="../addCgi/addCgi" open-type="navigate" class="uploader-text">
             <text>快速增加 CGI</text>
         </navigator>
-    </view>
+    </view> -->
 </view>

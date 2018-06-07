@@ -6,6 +6,14 @@ page {
     justify-content: flex-start;
 }
 
+.canvas-container{
+  margin:0 auto;
+  position: relative;
+  margin-top:75rpx; 
+  height: 600rpx;
+  width: 700rpx;
+}
+
 .userinfo, .uploader, .tunnel {
     margin-top: 40rpx;
     height: 140rpx;
