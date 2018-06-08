@@ -10,27 +10,8 @@ Page({
         userInfo: {},
         logged: false,
         takeSession: false,
-        dateType:"day",
-        weightData: [
-          { "date": 20180601, "weight": 140 },
-          { "date": 20180602, "weight": 130 },
-          { "date": 20180603, "weight": 120 },
-          { "date": 20180604, "weight": null},
-          { "date": 20180605, "weight": 130 },
-          { "date": 20180606, "weight": 143 },
-          { "date": 20180607, "weight": null},
-          { "date": 20180608, "weight": 130 },
-          { "date": 20180609, "weight": 93 },
-          { "date": 20180610, "weight": 140 },
-          { "date": 20180611, "weight": 130 },
-          { "date": 20180612, "weight": 130 },
-          { "date": 20180613, "weight": 120 },
-          { "date": 20180614, "weight": null },
-          { "date": 20180615, "weight": 130 },
-          { "date": 20180616, "weight": 143 },
-          { "date": 20180617, "weight": null },
-          { "date": 20180618, "weight": 130 }
-        ],
+        dateType:'',
+        weightData: '',
         requestResult: ''
     },
 
@@ -39,7 +20,27 @@ Page({
       */
     onLoad: function (options) {
       // const ctx = wx.createCanvasContext('xyz');
-      this.draw(this.data);
+      
+      var that = this;
+      wx.request({
+        url: config.service.testUril,
+        login: true,
+        success(result) {
+          util.showSuccess('请求成功完成')
+          console.log('request success----', result.data.data)
+          that.setData({
+            weightData: result.data.data.weightData,
+            dateType:result.data.data.dateType
+          })
+          console.log(that.data);
+          //画图
+          that.draw(that.data);
+        },
+        fail(error) {
+          util.showModel('请求失败', error);
+          console.log('request fail', error);
+        }
+      })
       
     },
 
@@ -90,7 +91,7 @@ Page({
           console.log('屏幕宽度:'+width+'; 屏幕高度:'+height);
         },
       })
-      var ratioX=parseInt((width-60)/15);
+      var ratioX=parseInt((width-60)/18);
       var ratioY=stepY*3;
       
 
@@ -131,7 +132,12 @@ Page({
         ctx.setFontSize('8');
         ctx.setFillStyle('#006600');
         var str = map[i].date+'';
-        ctx.fillText(str.substr(4),i*ratioX,20);
+        var day = parseInt(str.substr(6));
+        if(parseInt(day)==1 || i==0){
+          ctx.fillText(parseInt(str.substr(4, 2)) + "." + day, i * ratioX, 20);
+        }else{
+          ctx.fillText(day, i * ratioX, 20);
+        }
         ctx.restore();
       }
       
@@ -148,7 +154,7 @@ Page({
         ctx.lineTo(i * ratioX, -(map[i].weight-minY)/stepY*ratioY);
         
         // originY - i * ratioY
-        console.log((map[i].weight - minY)/stepY);
+        // console.log((map[i].weight - minY)/stepY);
       }
       ctx.stroke();
       ctx.restore();
